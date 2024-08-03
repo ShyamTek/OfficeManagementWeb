@@ -7,6 +7,9 @@
     <h1 class="float-left">User List</h1>
     <div class="float-right">
         <a asp-action="Create" class="btn btn-primary">Create New</a>
+        <button type="button" name="importexcel" class="btn bg-olive" data-toggle="modal" data-target="#importexcel-window">
+            <i class="fas fa-upload"></i>
+        </button>
     </div>
 </div>
 
@@ -24,8 +27,8 @@
                                     <th>Email</th>
                                     <th>Phone Number</th>
                                     <th>Department</th>
-                                    <th>Booking start Time</th>
-                                    <th>Booking end time</th>
+                                    <th>Booking start date</th>
+                                    <th>Booking end date</th>
                                     <th width="100px">Edit</th>
                                     <th width="100px">Delete</th>
                                 </tr>
@@ -37,6 +40,41 @@
         </div>
     </div>
 </section>
+
+<div id="importexcel-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importexcel-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="importexcel-window-title">Import From Excel</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <form asp-controller="Employee" asp-action="ImportExcel" method="post" enctype="multipart/form-data">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <div class="col-md-2">
+                                <div class="label-wrapper">
+                                    <label class="col-form-label">
+                                        Excel File
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-10">
+                                <input type="file" id="importexcelfile" name="importexcelfile" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            Import From Excel
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
     $(document).ready(function () {
@@ -59,9 +97,9 @@
                 { "data": "lastName", "name": "lastName", "autoWidth": true },
                 { "data": "email", "name": "email", "autoWidth": true },
                 { "data": "number", "name": "number", "autoWidth": true },
-                { "data": "department", "name": "department", "autoWidth": true },
-                { "data": "bookingStartdate", "name": "bookingStartdate", "autoWidth": true },
-                { "data": "bookingEnddate", "name": "bookingEnddate", "autoWidth": true },
+                { "data": "departmentID", "name": "departmentID", "autoWidth": true },
+                { "data": "bookingStartDate", "name": "bookingStartDate", "autoWidth": true },
+                { "data": "bookingEndDate", "name": "bookingEndDate", "autoWidth": true },
                 {
                     "render": function (data, type, full, meta) { return "<a class ='btn btn-info'  onclick=location.replace('/Employee/Edit/" + full.id + "');>Edit</a>"; }
                 },

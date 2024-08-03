@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Tawuniya.Core.Domain.Employees;
 using Tawuniya.Services.Common;
-using Tawuniya.Services.Employees;
 using Tawuniya.Web.Factories;
 using Tawuniya.Web.Models.Employees;
 
@@ -111,6 +111,52 @@ namespace Tawuniya.Web.Controllers
             }
             model = _employeeModelFactory.PrepareEmployeeModel(model, employee);
             return View(model);
+        }
+
+        [HttpPost]
+        public virtual async Task<IActionResult> ImportExcel(IFormFile importexcelfile)
+        {
+            var stream = new MemoryStream();
+            await importexcelfile.CopyToAsync(stream);
+            stream.Position = 0;
+
+            using (var package = new XLWorkbook(stream))
+            {
+                var worksheet = package.Worksheet(1); // Get the first worksheet
+
+                var headers = worksheet.Row(1).Cells().Select(c => c.Value.ToString()).ToList();
+
+                foreach (var row in worksheet.RowsUsed().Skip(1)) // Assuming the first row is headers
+                {
+                    var employeeModel = new EmployeeModel
+                    {
+                        FirstName = row.Cell(2).GetValue<string>(),
+                        LastName = row.Cell(3).GetValue<string>(),
+                        Email = row.Cell(4).GetValue<string>(),
+                        Number = row.Cell(5).GetValue<string>(),
+                        IpAddress = row.Cell(6).GetValue<string>(),
+                        MaritalStatus = row.Cell(7).GetValue<string>(),
+                        FamilyMembers = row.Cell(8).GetValue<string>(),
+                        SalaryPackage = row.Cell(9).GetValue<string>(),
+                        LoansEnrolment = row.Cell(10).GetValue<string>(),
+                        ProgramsEnrolment = row.Cell(11).GetValue<string>(),
+                        EmployeeID = row.Cell(12).GetValue<string>(),
+                        DeskTopIP = row.Cell(13).GetValue<string>(),
+                        LaptopIP = row.Cell(14).GetValue<string>(),
+                        MobileSIM = row.Cell(15).GetValue<string>(),
+                        WiFiIP = row.Cell(16).GetValue<string>(),
+                        Gender = row.Cell(17).GetValue<string>(),
+                        DepartmentID = int.Parse(row.Cell(18).GetValue<string>()),
+                        BookingStartDate = row.Cell(19).GetValue<DateTime>(),
+                        BookingEndDate = row.Cell(20).GetValue<DateTime>()
+                    };
+
+                    var jsonBody = JsonConvert.SerializeObject(employeeModel);
+                    var response = await _commonAPIService.ApiPostAsync("https://localhost:44377/api/Employee/CreateEmployee", jsonBody);
+                }
+            }
+
+            return RedirectToAction("List");
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Tawuniya.Core.Domain.Employees;
 
 namespace Tawuniya.Services.Common
 {
@@ -37,7 +38,7 @@ namespace Tawuniya.Services.Common
             request.Headers.Add("accept", "*/*");
             var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
-            var detailResponse = JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync());
+            var detailResponse = JsonConvert.DeserializeObject<Employee>(await response.Content.ReadAsStringAsync());
 
             return detailResponse;
         }
