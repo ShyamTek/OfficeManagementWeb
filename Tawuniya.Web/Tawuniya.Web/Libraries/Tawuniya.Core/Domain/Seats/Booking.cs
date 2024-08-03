@@ -1,12 +1,15 @@
-﻿namespace Tawuniya.Core.Domain.Seats
+﻿using Tawuniya.Core.Domain.Layouts;
+
+namespace Tawuniya.Core.Domain.Seats
 {
     public class Booking : BaseEntity
     {
-        public int UserId { get; set; }
+        public int PolygonId { get; set; }
+        public Polygon Polygon { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public int LayoutId { get; set; }
-        public float X { get; set; }
-        public float Y { get; set; }
+        public string UserId { get; set; }
+        public string EmployeeId { get; set; }
     }
+
 }

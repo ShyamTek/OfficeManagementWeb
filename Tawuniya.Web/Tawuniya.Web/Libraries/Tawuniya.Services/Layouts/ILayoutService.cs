@@ -1,4 +1,4 @@
-﻿using Tawuniya.Core.Domain.Layout;
+﻿using Tawuniya.Core.Domain.Layouts;
 
 namespace Tawuniya.Services.Layouts
 {

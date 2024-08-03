@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Tawuniya.Core.Domain.Layout;
+﻿using Tawuniya.Core.Domain.Layouts;
 using Tawuniya.Data;
 
 namespace Tawuniya.Services.Layouts
@@ -19,28 +18,25 @@ namespace Tawuniya.Services.Layouts
             _context = context;
         }
 
+        public Task<Layout> GetLayoutByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IList<Layout>> GetLayoutsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task InsertLayoutAsync(Layout layout)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region Methods
 
-        public async Task<IList<Layout>> GetLayoutsAsync()
-        {
-            return await _context.Layouts.ToListAsync();
-
-        }
-        public async Task InsertLayoutAsync(Layout layout)
-        {
-            if (layout == null)
-                throw new ArgumentNullException(nameof(layout));
-
-            await _context.Layouts.AddAsync(layout);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<Layout> GetLayoutByIdAsync(int id)
-        {
-            return await _context.Layouts.FindAsync(id);
-        }
 
         #endregion
     }

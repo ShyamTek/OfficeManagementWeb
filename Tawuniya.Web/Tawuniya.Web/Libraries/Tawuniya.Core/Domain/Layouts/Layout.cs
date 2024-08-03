@@ -1,4 +1,4 @@
-﻿namespace Tawuniya.Core.Domain.Layout
+﻿namespace Tawuniya.Core.Domain.Layouts
 {
     public class Layout : BaseEntity
     {        

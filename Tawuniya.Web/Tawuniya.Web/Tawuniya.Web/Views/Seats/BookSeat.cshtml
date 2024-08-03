@@ -1,0 +1,163 @@
+﻿@using Tawuniya.Web.Models.Seats
+@model IEnumerable<LayoutViewModel>
+@{
+    ViewData["Title"] = "Book Seat";
+}
+
+<h2>Book Seat</h2>
+
+<select id="layoutSelect">
+    <option value="" disabled selected>Select Layout</option>
+    @foreach (var layout in Model)
+    {
+        <option value="@layout.Id" data-src="@Url.Content($"~{layout.ImageUrl}")">@layout.Name</option>
+    }
+</select>
+
+<button id="zoomInBtn">Zoom In</button>
+<button id="zoomOutBtn">Zoom Out</button>
+<canvas id="officeLayoutCanvas" style="border: 1px solid black;"></canvas>
+
+<!-- Booking modal -->
+<div id="bookingModal" style="display:none;">
+    <div>
+        <h3>Book Seat</h3>
+        <form id="bookingForm">
+            <input type="hidden" id="polygonId" name="polygonId" />
+            <input type="hidden" id="layoutId" name="layoutId" />
+            <label for="startTime">Start Time:</label>
+            <input type="datetime-local" id="startTime" name="startTime" required />
+            <label for="endTime">End Time:</label>
+            <input type="datetime-local" id="endTime" name="endTime" required />
+            <button type="submit">Book</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const layoutSelect = document.getElementById('layoutSelect');
+    const canvas = document.getElementById('officeLayoutCanvas');
+    const ctx = canvas.getContext('2d');
+    const bookingModal = document.getElementById('bookingModal');
+    const bookingForm = document.getElementById('bookingForm');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    let polygons = [];
+    let layoutId = null;
+    let layoutSrc = null;
+    let scaleFactor = 1;
+    let layoutImage = new Image();
+
+    layoutSelect.addEventListener('change', function () {
+        const selectedOption = layoutSelect.options[layoutSelect.selectedIndex];
+        layoutId = selectedOption.value;
+        layoutSrc = selectedOption.getAttribute('data-src');
+        fetchLayout(layoutSrc);
+        fetchPolygons(layoutId);
+    });
+
+    zoomInBtn.addEventListener('click', function () {
+        scaleFactor *= 1.2;
+        drawLayoutAndPolygons();
+    });
+
+    zoomOutBtn.addEventListener('click', function () {
+        scaleFactor /= 1.2;
+        drawLayoutAndPolygons();
+    });
+
+    canvas.addEventListener('click', function (event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / scaleFactor;
+        const y = (event.clientY - rect.top) / scaleFactor;
+
+        polygons.forEach(polygon => {
+            if (ctx.isPointInPath(polygon.path, x, y)) {
+                document.getElementById('polygonId').value = polygon.id;
+                document.getElementById('layoutId').value = layoutId;
+                bookingModal.style.display = 'block';
+            }
+        });
+    });
+
+    bookingForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const bookingData = {
+            layoutId: document.getElementById('layoutId').value,
+            polygonId: document.getElementById('polygonId').value,
+            startTime: document.getElementById('startTime').value,
+            endTime: document.getElementById('endTime').value
+        };
+
+        fetch('/Seats/BookSeat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(bookingData)
+        }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Seat booked successfully.');
+                    bookingModal.style.display = 'none';
+                } else {
+                    alert('Failed to book seat.');
+                }
+            });
+    });
+
+    function fetchLayout(layoutSrc) {
+        layoutImage.src = layoutSrc;
+        layoutImage.onload = () => {
+            canvas.width = layoutImage.width * scaleFactor;
+            canvas.height = layoutImage.height * scaleFactor;
+            drawLayoutAndPolygons();
+        };
+    }
+
+    function fetchPolygons(layoutId) {
+        fetch('/Seats/GetLayoutPolygons?layoutId=' + layoutId)
+            .then(response => response.json())
+            .then(data => {
+                polygons = data.map(polygon => ({
+                    ...polygon,
+                    path: createPolygonPath(polygon.coordinates)
+                }));
+                drawLayoutAndPolygons();
+            });
+    }
+
+    function createPolygonPath(coordinates) {
+        const path = new Path2D();
+        path.moveTo(coordinates[0].x, coordinates[0].y);
+        for (let i = 1; i < coordinates.length; i++) {
+            path.lineTo(coordinates[i].x, coordinates[i].y);
+        }
+        path.closePath();
+        return path;
+    }
+
+    function drawLayoutAndPolygons() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(layoutImage, 0, 0, layoutImage.width * scaleFactor, layoutImage.height * scaleFactor);
+        ctx.save();
+        ctx.scale(scaleFactor, scaleFactor);
+        polygons.forEach(polygon => {
+            ctx.fillStyle = getCategoryColor(polygon.category);
+            ctx.fill(polygon.path);
+        });
+        ctx.restore();
+    }
+
+    function getCategoryColor(category) {
+        const colorMap = {
+            "Category1": "rgba(255, 0, 0, 0.5)",
+            "Category2": "rgba(0, 255, 0, 0.5)",
+            "Category3": "rgba(0, 0, 255, 0.5)"
+        };
+        return colorMap[category] || 'rgba(0, 0, 0, 0.5)';
+    }
+</script>
+
+

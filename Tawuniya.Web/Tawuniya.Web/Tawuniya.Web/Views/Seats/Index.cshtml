@@ -1,0 +1,51 @@
+﻿@using Tawuniya.Web.Models.Seats
+@model IEnumerable<LayoutViewModel>
+@{
+    ViewData["Title"] = "Layouts";
+}
+
+<h2>Layouts</h2>
+
+<div>
+    <button id="uploadBtn">Upload Layout</button>
+    <input type="file" id="fileInput" style="display: none;" />
+</div>
+
+@foreach (var layout in Model)
+{
+    <div>
+        <p>@layout.Name</p>
+        <img src="@Url.Content($"~{layout.ImageUrl}")" alt="@layout.Name" />
+        <a href="@Url.Action("MarkSeat", "Seats", new { layoutId = layout.Id })">Mark Seats</a>
+        <a href="@Url.Action("BookSeat", "Seats", new { layoutId = layout.Id })">Book Seats</a>
+    </div>
+}
+<script>
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/Layouts/UploadLayout', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Layout uploaded successfully!');
+                        location.reload(); // Reload the page to refresh the dropdown options
+                    } else {
+                        alert('Failed to upload layout.');
+                    }
+                });
+        }
+    });
+</script>

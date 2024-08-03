@@ -24,33 +24,33 @@ namespace Tawuniya.Services.Seats
 
         #region Methods
 
-        public async Task<IList<Seat>> GetSeatsAsync()
+        public async Task<IList<Polygon>> GetSeatsAsync()
         {
-            return await _context.Seat.ToListAsync();
+            return await _context.Polygons.ToListAsync();
 
         }
-        public async Task InsertSeatAsync(Seat seat)
+        public async Task InsertSeatAsync(Polygon seat)
         {
             if (seat == null)
                 throw new ArgumentNullException(nameof(seat));
 
-            await _context.Seat.AddAsync(seat);
+            await _context.Polygons.AddAsync(seat);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Seat> GetSeatByIdAsync(int id)
+        public async Task<Polygon> GetSeatByIdAsync(int id)
         {
-            return await _context.Seat.FindAsync(id);
+            return await _context.Polygons.FindAsync(id);
         }
         
-        public async Task<Seat> GetSeatByLocationAsync(float seatX, float seatY)
-        {
-            return  _context.Seat.Where(x => x.X == seatX && x.Y == seatY).FirstOrDefault();
-        }
+        //public async Task<Polygon> GetSeatByLocationAsync(float seatX, float seatY)
+        //{
+        //    return  _context.Polygons.Where(x => x.X == seatX && x.Y == seatY).FirstOrDefault();
+        //}
         
-        public async Task<IList<Seat>> GetSeatByLayoutIdAsync(int layoutId)
+        public async Task<IList<Polygon>> GetSeatByLayoutIdAsync(int layoutId)
         {
-            return  _context.Seat.Where(s=>s.LayoutId==s.LayoutId).ToList();
+            return  _context.Polygons.Where(s=>s.LayoutId==s.LayoutId).ToList();
         }
 
         public async Task InsertBookingAsync(Booking booking)
@@ -58,8 +58,13 @@ namespace Tawuniya.Services.Seats
             if (booking == null)
                 throw new ArgumentNullException(nameof(booking));
 
-            await _context.Booking.AddAsync(booking);
+            await _context.Bookings.AddAsync(booking);
             await _context.SaveChangesAsync();
+        }
+
+        public Task<Polygon> GetSeatByLocationAsync(float seatX, float seatY)
+        {
+            throw new NotImplementedException();
         }
 
 

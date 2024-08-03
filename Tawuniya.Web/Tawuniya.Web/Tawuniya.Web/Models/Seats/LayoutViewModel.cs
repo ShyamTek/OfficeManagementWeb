@@ -1,4 +1,4 @@
-﻿namespace Tawuniya.Web.Models
+﻿namespace Tawuniya.Web.Models.Seats
 {
     public class LayoutViewModel
     {

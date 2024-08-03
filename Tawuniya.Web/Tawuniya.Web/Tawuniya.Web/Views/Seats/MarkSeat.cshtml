@@ -1,0 +1,143 @@
+﻿@using Tawuniya.Web.Models.Seats
+@model LayoutViewModel
+
+@{
+    ViewData["Title"] = "Mark Seats";
+}
+
+<h2>Mark Seats</h2>
+
+<label for="categorySelect">Select Category:</label>
+<select id="categorySelect">
+    <option value="Category1">Category 1</option>
+    <option value="Category2">Category 2</option>
+    <option value="Category3">Category 3</option>
+</select>
+
+<button id="toggleSelectionBtn">Enable Selection</button>
+<button id="zoomInBtn">Zoom In</button>
+<button id="zoomOutBtn">Zoom Out</button>
+<canvas id="officeLayoutCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('officeLayoutCanvas');
+    const ctx = canvas.getContext('2d');
+    const categorySelect = document.getElementById('categorySelect');
+    const toggleSelectionBtn = document.getElementById('toggleSelectionBtn');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    let currentPolygon = [];
+    let polygons = [];
+    let selectionEnabled = false;
+    let scaleFactor = 1;
+
+    // Load and draw the office layout image
+    const layoutImage = new Image();
+    layoutImage.src = '@Model.ImageUrl';
+    layoutImage.onload = () => {
+        canvas.width = layoutImage.width;
+        canvas.height = layoutImage.height;
+        drawLayout();
+        loadSavedPolygons();
+    };
+
+    toggleSelectionBtn.addEventListener('click', function () {
+        selectionEnabled = !selectionEnabled;
+        toggleSelectionBtn.textContent = selectionEnabled ? 'Disable Selection' : 'Enable Selection';
+        if (!selectionEnabled && currentPolygon.length > 0) {
+            savePolygon(currentPolygon, categorySelect.value);
+            currentPolygon = [];
+        }
+    });
+
+    canvas.addEventListener('click', function (event) {
+        if (!selectionEnabled) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / scaleFactor;
+        const y = (event.clientY - rect.top) / scaleFactor;
+
+        currentPolygon.push({ x, y });
+        drawBlackDot(x, y);
+    });
+
+    zoomInBtn.addEventListener('click', function () {
+        scaleFactor *= 1.2;
+        drawLayout();
+        loadSavedPolygons();
+    });
+
+    zoomOutBtn.addEventListener('click', function () {
+        scaleFactor /= 1.2;
+        drawLayout();
+        loadSavedPolygons();
+    });
+
+    function drawBlackDot(x, y) {
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(x * scaleFactor, y * scaleFactor, 3, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    function drawPolygon(polygon, category) {
+        const colorMap = {
+            "Category1": "rgba(255, 0, 0, 0.5)",
+            "Category2": "rgba(0, 255, 0, 0.5)",
+            "Category3": "rgba(0, 0, 255, 0.5)"
+        };
+        ctx.fillStyle = colorMap[category] || 'rgba(0, 0, 0, 0.5)';
+        ctx.beginPath();
+        polygon.forEach((point, index) => {
+            const scaledX = point.x * scaleFactor;
+            const scaledY = point.y * scaleFactor;
+            if (index === 0) {
+                ctx.moveTo(scaledX, scaledY);
+            } else {
+                ctx.lineTo(scaledX, scaledY);
+            }
+        });
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function savePolygon(polygon, category) {
+        fetch('/Seats/MarkSeat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                layoutId: @ViewData["LayoutId"],
+                coordinates: polygon,
+                category: category
+            })
+        }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Polygon saved successfully.');
+                    drawLayout();
+                    loadSavedPolygons(); // Reload the saved polygons
+                } else {
+                    alert('Failed to save polygon.');
+                }
+            });
+    }
+
+    function loadSavedPolygons() {
+        fetch('/Seats/GetLayoutPolygons?layoutId=' + @ViewData["LayoutId"])
+            .then(response => response.json())
+            .then(data => {
+                polygons = data;
+                polygons.forEach(polygon => {
+                    drawPolygon(polygon.coordinates, polygon.category);
+                });
+            });
+    }
+
+    function drawLayout() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(layoutImage, 0, 0, canvas.width * scaleFactor, canvas.height * scaleFactor);
+    }
+</script>
+
