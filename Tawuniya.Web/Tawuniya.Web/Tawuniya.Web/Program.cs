@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Tawuniya.Data;
+using Tawuniya.Services.Common;
 using Tawuniya.Services.Departments;
 using Tawuniya.Services.Employees;
 using Tawuniya.Services.Layouts;
 using Tawuniya.Services.Seats;
 using Tawuniya.Services.Security;
 using Tawuniya.Services.Users;
+using Tawuniya.Web.Factories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,8 +30,25 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<ISeatService, SeatService>();
 builder.Services.AddScoped<ILayoutService, LayoutService>();
+builder.Services.AddScoped<IUserModelFactory, UserModelFactory>();
+builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.TryAddSingleton<ICommonAPIService, CommonAPIService>();
+builder.Services.TryAddSingleton<IEmployeeModelFactory, EmployeeModelFactory>();
 
 builder.Services.AddControllers();
+
+builder.Services.AddAuthentication(option =>
+{
+    option.DefaultAuthenticateScheme = "Authentication";
+    option.DefaultScheme = "Authentication";
+    option.DefaultSignInScheme = "Authentication";
+}).AddCookie("Authentication", options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.LoginPath = "/Users/login";
+});
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

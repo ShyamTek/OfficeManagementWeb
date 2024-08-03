@@ -1,0 +1,61 @@
+﻿@model EmployeeModel
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            @Html.HiddenFor(model => model.Id)
+                            <div class="form-group">
+                                <label asp-for="FirstName" class="control-label"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="LastName" class="control-label"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Email" class="control-label"></label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Number" class="control-label"></label>
+                                <input asp-for="Number" class="form-control" />
+                                <span asp-validation-for="Number" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="IpAddress" class="control-label"></label>
+                                <input asp-for="IpAddress" class="form-control" />
+                                <span asp-validation-for="IpAddress" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DepartmentID" class="control-label"></label>
+                                <input asp-for="DepartmentID" class="form-control" />
+                                <span asp-validation-for="DepartmentID" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="BookingStartDate" class="control-label"></label>
+                                <input asp-for="BookingStartDate" class="form-control" />
+                                <span asp-validation-for="BookingStartDate" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="BookingEndDate" class="control-label"></label>
+                                <input asp-for="BookingEndDate" class="form-control" />
+                                <span asp-validation-for="BookingEndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

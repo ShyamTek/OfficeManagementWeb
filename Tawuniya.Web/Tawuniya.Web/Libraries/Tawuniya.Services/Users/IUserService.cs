@@ -73,6 +73,27 @@ namespace Tawuniya.Services.Users
         /// <param name="email">email</param>
         /// <param name="password">password</param>
         /// <returns>login result</returns>
-        Task<UserLoginResults> ValidateUserAsync(string email, string password);
+        Task<string> ValidateUserAsync(string email, string password);
+
+        /// <summary>
+        /// sign in user
+        /// </summary>
+        /// <param name="user">user </param>
+        /// <param name="rememberMe">remember me</param>
+        /// <returns>sign in user</returns>
+        Task<bool> SignInUserAsync(User? user, bool rememberMe);
+
+        /// <summary>
+        /// sign out user
+        /// </summary>
+        Task SignOutAsync();
+
+        /// <summary>
+        /// api post method
+        /// </summary>
+        /// <param name="url">url</param>
+        /// <param name="jsonBody">json body</param>
+        /// <returns></returns>
+        Task<string> ApiPostAsync(string url, string jsonBody);
     }
 }

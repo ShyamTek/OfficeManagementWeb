@@ -1,7 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Tawuniya.Core.Domain.Users;
 using Tawuniya.Data;
 using Tawuniya.Services.Security;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace Tawuniya.Services.Users
 {
@@ -11,16 +15,19 @@ namespace Tawuniya.Services.Users
 
         private readonly TawuniyaDBContext _context;
         private readonly IEncryptionService _encryptionService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion
 
         #region Ctor
 
         public UserService(TawuniyaDBContext context,
-            IEncryptionService encryptionService)
+            IEncryptionService encryptionService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _encryptionService = encryptionService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -44,6 +51,29 @@ namespace Tawuniya.Services.Users
                 return false;
 
             return userPassword.Password.Equals(savedPassword);
+        }
+
+        protected async Task SignIn(User? user, bool rememberMe)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            var claims = new List<Claim>();
+
+            if (!string.IsNullOrEmpty(user.UserName))
+                claims.Add(new Claim(ClaimTypes.Name, user.UserName, ClaimValueTypes.String, "Tawuniya"));
+
+            var userIdentity = new ClaimsIdentity(claims, "Authentication");
+            var userPrincipal = new ClaimsPrincipal(userIdentity);
+
+            var authenticationProperties = new AuthenticationProperties
+            {
+                IsPersistent = rememberMe,
+                IssuedUtc = DateTime.UtcNow
+            };
+
+            await _httpContextAccessor.HttpContext.SignInAsync("Authentication", userPrincipal, authenticationProperties);
+
         }
 
         #endregion
@@ -164,17 +194,58 @@ namespace Tawuniya.Services.Users
         /// <param name="email">email</param>
         /// <param name="password">password</param>
         /// <returns>login result</returns>
-        public async Task<UserLoginResults> ValidateUserAsync(string email, string password)
+        public async Task<string> ValidateUserAsync(string email, string password)
         {
-            var user = await GetUserByEmailAsync(email);
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, $"https://localhost:44377/Api/User/Login?email={email}&password={password}");
+            request.Headers.Add("accept", "*/*");
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
+            var loginResponse = await response.Content.ReadAsStringAsync();
 
-            if (user == null)
-                return UserLoginResults.UserNotExist;
+            return loginResponse;
+        }
 
-            if (!await PasswordMatch(user, password))
-                return UserLoginResults.WrongPassword;
+        /// <summary>
+        /// sign in user
+        /// </summary>
+        /// <param name="user">user </param>
+        /// <param name="rememberMe">remember me</param>
+        /// <returns>sign in user</returns>
+        public virtual async Task<bool> SignInUserAsync(User? user, bool rememberMe)
+        {
+            await SignIn(user, rememberMe);
 
-            return UserLoginResults.Successful;
+            return true;
+        }
+
+        /// <summary>
+        /// sign out user
+        /// </summary>
+        public virtual async Task SignOutAsync()
+        {
+            await _httpContextAccessor.HttpContext.SignOutAsync("Authentication");
+        }
+
+        /// <summary>
+        /// api post method
+        /// </summary>
+        /// <param name="url">url</param>
+        /// <param name="jsonBody">json body</param>
+        /// <returns></returns>
+        public async Task<string> ApiPostAsync(string url, string jsonBody)
+        {
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("accept", "*/*");
+            var content = new StringContent(jsonBody, null, "application/json");
+            request.Content = content;
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var registrationResponse = await response.Content.ReadAsStringAsync();
+
+            return registrationResponse;
         }
 
         #endregion

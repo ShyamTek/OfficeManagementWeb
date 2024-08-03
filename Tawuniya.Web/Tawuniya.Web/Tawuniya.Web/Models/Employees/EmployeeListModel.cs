@@ -1,7 +1,8 @@
-﻿namespace Tawuniya.Core.Domain.Employees
+﻿namespace Tawuniya.Web.Models.Employees
 {
-    public partial class Employee : BaseEntity
+    public class EmployeeListModel
     {
+        public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
