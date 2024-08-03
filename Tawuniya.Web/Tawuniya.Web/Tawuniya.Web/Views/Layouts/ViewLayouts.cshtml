@@ -1,0 +1,15 @@
+﻿@model IEnumerable<LayoutViewModel>
+
+@{
+    ViewData["Title"] = "View Layouts";
+}
+
+<h2>View Layouts</h2>
+
+<ul>
+    @foreach (var layout in Model)
+    {
+        <li>@layout.Name</li>
+        <img src="~/uploads/@layout.Name"/>
+    }
+</ul>
