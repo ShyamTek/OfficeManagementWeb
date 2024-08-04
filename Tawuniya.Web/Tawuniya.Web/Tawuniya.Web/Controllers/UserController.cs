@@ -35,6 +35,31 @@ namespace Tawuniya.Web.Controllers
             return View();
         }
 
+        public IActionResult List()
+        {
+            ViewBag.Current = "User";
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UserList()
+        {
+            var response = await _commonAPIService.EntityListAsync("https://localhost:44377/api/User/GetAllUsers");
+            var users = JsonConvert.DeserializeObject<IList<UserCreationResponse>>(response);
+
+
+            var draw = Request.Form["draw"].FirstOrDefault();
+            var start = Request.Form["start"].FirstOrDefault();
+            var length = Request.Form["length"].FirstOrDefault();
+
+            int pageSize = length != null ? Convert.ToInt32(length) : 0;
+            int skip = start != null ? Convert.ToInt32(start) : 0;
+            //var searchValue = Request.Form["search[value]"].FirstOrDefault();
+            int recordsTotal = users.Count();
+            var data = users.Skip(skip).Take(pageSize).ToList();
+            return Json(new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = data });
+        }
+
         public IActionResult Login()
         {
             return View(new LoginModel());

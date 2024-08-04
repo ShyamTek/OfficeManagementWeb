@@ -37,6 +37,17 @@ namespace Tawuniya.Web.Factories
                 model.Number = employee.Number;
                 model.DepartmentID = employee.DepartmentID;
                 model.IpAddress = employee.IpAddress;
+                model.EmployeeID = employee.EmployeeID;
+                model.FamilyMembers = employee.FamilyMembers;
+                model.MaritalStatus = employee.MaritalStatus;
+                model.SalaryPackage = employee.SalaryPackage;
+                model.LoansEnrolment = employee.LoansEnrolment;
+                model.ProgramsEnrolment = employee.ProgramsEnrolment;
+                model.DeskTopIP = employee.DeskTopIP;
+                model.LaptopIP = employee.LaptopIP;
+                model.MobileSIM = employee.MobileSIM;
+                model.WiFiIP = employee.WiFiIP;
+                model.Gender = employee.Gender;
                 model.BookingEndDate = employee.BookingEndDate;
                 model.BookingStartDate = employee.BookingStartDate;
             }

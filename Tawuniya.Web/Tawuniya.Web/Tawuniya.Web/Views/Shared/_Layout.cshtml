@@ -44,11 +44,8 @@
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
+                <li class="nav-item">
+                    <a class="nav-link">@await Component.InvokeAsync(typeof(CategorySelectorViewComponent))</a>
                 </li>
             </ul>
 
@@ -212,11 +209,10 @@
                         <!-- Add icons to the links using the .nav-icon class
                              with font-awesome or any other icon font library -->
                         <li class="nav-item menu-open">
-                            <a href="#" class="nav-link">
+                            <a href="/Home/Index" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
-                                    <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
                         </li>
@@ -224,6 +220,20 @@
                             <a href="/Employee/List" class="nav-link @(ViewBag.Current == "Employee" ? "active" : "")" ">
                                 <p>
                                     Employee
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/Users/List" class="nav-link @(ViewBag.Current == "User" ? "active" : "")" ">
+                                <p>
+                                    Users
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/Department/List" class="nav-link @(ViewBag.Current == "Department" ? "active" : "")" ">
+                                <p>
+                                    Department
                                 </p>
                             </a>
                         </li>

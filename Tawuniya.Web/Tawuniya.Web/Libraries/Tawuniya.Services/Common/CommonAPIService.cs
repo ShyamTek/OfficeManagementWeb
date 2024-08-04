@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Net;
 using Tawuniya.Core.Domain.Employees;
 
 namespace Tawuniya.Services.Common
@@ -31,16 +32,48 @@ namespace Tawuniya.Services.Common
         /// <param name="url">url</param>
         /// <param name="id">id</param>
         /// <returns></returns>
-        public async Task<object?> GetByIdAsync(string url, int id)
+        public async Task<string> GetByIdAsync(string url, int id)
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, $"{url}?id={id}");
             request.Headers.Add("accept", "*/*");
             var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
-            var detailResponse = JsonConvert.DeserializeObject<Employee>(await response.Content.ReadAsStringAsync());
+            var detailResponse = await response.Content.ReadAsStringAsync();
 
             return detailResponse;
+        }
+
+        /// <summary>
+        /// Delete entity async
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<HttpResponseMessage> DeleteEntityAsync(string url, int id)
+        {
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{url}?id={id}");
+            request.Headers.Add("accept", "*/*");
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();            
+
+            return response;
+        }
+
+        /// <summary>
+        /// get list of entity
+        /// </summary>
+        /// <param name="url">api url</param>
+        /// <returns></returns>
+        public async Task<string> EntityListAsync(string url)
+        {
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("accept", "*/*");
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Tawuniya.Core.Domain.Employees;
 using Tawuniya.Services.Common;
 using Tawuniya.Web.Factories;
 using Tawuniya.Web.Models.Employees;
@@ -39,12 +38,8 @@ namespace Tawuniya.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> EmployeeList()
         {
-            var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:44377/api/Employee/EmployeeList");
-            request.Headers.Add("accept", "*/*");
-            var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            var employees = JsonConvert.DeserializeObject<IList<EmployeeListModel>>(await response.Content.ReadAsStringAsync());
+            var response = await _commonAPIService.EntityListAsync("https://localhost:44377/api/Employee/EmployeeList");
+            var employees = JsonConvert.DeserializeObject<IList<EmployeeListModel>>(response);
 
 
             var draw = Request.Form["draw"].FirstOrDefault();
@@ -62,21 +57,21 @@ namespace Tawuniya.Web.Controllers
         public IActionResult Create()
         {
             ViewBag.Current = "Employee";
-            var model = _employeeModelFactory.PrepareEmployeeModel(new EmployeeModel(), null);
+            //var model = _employeeModelFactory.PrepareEmployeeModel(new EmployeeModel(), null);
 
-            return View(model);
+            return View(new EmployeeModel());
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(EmployeeModel model)
         {
-            if (ModelState.IsValid) 
+            if (ModelState.IsValid)
             {
                 var jsonBody = JsonConvert.SerializeObject(model);
                 var response = await _commonAPIService.ApiPostAsync("https://localhost:44377/api/Employee/CreateEmployee", jsonBody);
 
             }
-            model = _employeeModelFactory.PrepareEmployeeModel(model, null);
+            //model = _employeeModelFactory.PrepareEmployeeModel(model, null);
 
             return View(model);
         }
@@ -86,19 +81,19 @@ namespace Tawuniya.Web.Controllers
             ViewBag.Current = "Employee";
 
             var employeeResponse = await _commonAPIService.GetByIdAsync("https://localhost:44377/api/Employee/GetEmployee", id);
-            var employee = (Employee)employeeResponse;
+            var employee = JsonConvert.DeserializeObject<EmployeeModel>(employeeResponse);
             if (employee == null)
                 return RedirectToAction("List");
-            var userModel = _employeeModelFactory.PrepareEmployeeModel(null, employee);
+            //var userModel = _employeeModelFactory.PrepareEmployeeModel(null, employee);
 
-            return View(userModel);
+            return View(employee);
         }
 
         [HttpPost]
         public async Task<IActionResult> Edit(EmployeeModel model)
         {
             var employeeResponse = await _commonAPIService.GetByIdAsync("https://localhost:44377/api/Employee/GetEmployee", model.Id);
-            var employee = (Employee)employeeResponse;
+            var employee = JsonConvert.DeserializeObject<EmployeeModel>(employeeResponse);
             if (employee == null)
                 return RedirectToAction("List");
 
@@ -109,8 +104,20 @@ namespace Tawuniya.Web.Controllers
 
                 return RedirectToAction("List");
             }
-            model = _employeeModelFactory.PrepareEmployeeModel(model, employee);
-            return View(model);
+            //model = _employeeModelFactory.PrepareEmployeeModel(model, employee);
+            return View(employee);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            ViewBag.Current = "Employee";
+
+            var employeeResponse = await _commonAPIService.DeleteEntityAsync("https://localhost:44377/api/Employee/DeleteEmployee", id);
+            if (employeeResponse.IsSuccessStatusCode)
+                return Json(new { });
+
+            return RedirectToAction("List");
         }
 
         [HttpPost]

@@ -1,4 +1,6 @@
-﻿namespace Tawuniya.Services.Common
+﻿using System.Net;
+
+namespace Tawuniya.Services.Common
 {
     public partial interface ICommonAPIService
     {
@@ -16,6 +18,21 @@
         /// <param name="url">url</param>
         /// <param name="id">id</param>
         /// <returns></returns>
-        Task<object?> GetByIdAsync(string url, int id);
+        Task<string> GetByIdAsync(string url, int id);
+
+        /// <summary>
+        /// Delete entity async
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        Task<HttpResponseMessage> DeleteEntityAsync(string url, int id);
+
+        /// <summary>
+        /// get list of entity
+        /// </summary>
+        /// <param name="url">api url</param>
+        /// <returns></returns>
+        Task<string> EntityListAsync(string url);
     }
 }

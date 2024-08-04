@@ -1,0 +1,57 @@
+﻿@model IList<DepartmentResponse>
+@{
+    ViewData["Title"] = "Deparment List";
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Deparment List</h1>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-body">
+                        <table id="Deparment" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Despcription</th>
+                                    <th>Active</th>
+                                    <th>Created on</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(document).ready(function () {
+        $("#Deparment").DataTable({
+            "processing": true,
+            "serverSide": true,
+            "filter": true,
+            "autoWidth": false,
+            "orderMulti": false,
+            "searching": false,
+            "destroy": true,
+            "lengthMenu": [15, 20, 50, 100],
+            "ajax": {
+                "url": "@(Url.Action("DepartmentList", "Department"))",
+                "type": "POST",
+                "datatype": "json",
+            },
+            "columns": [
+                { "data": "name", "name": "name", "autoWidth": true },
+                { "data": "description", "name": "description", "autoWidth": true },
+                { "data": "active", "name": "active", "autoWidth": true },
+                { "data": "createdOn", "name": "createdOn", "autoWidth": true },
+            ]
+        });
+    });
+</script>
